@@ -1,4 +1,5 @@
 from pathlib import Path
+import asyncio
 
 import click
 
@@ -14,6 +15,8 @@ from aoc_cli.config import Environment, InitConfig, Protocol
 @click.command()
 @click.argument(
     "output_dir",
+    required=False,
+    default=Path.home() / ".config" / "bitswan" / "aoc",
     type=click.Path(exists=False, writable=True, file_okay=False, resolve_path=True),
 )
 @click.option("--overwrite", is_flag=True, help="Overwrite existing files")
@@ -31,6 +34,16 @@ from aoc_cli.config import Environment, InitConfig, Protocol
 @click.option("--org-name", type=str, help="Organization name")
 @click.pass_context
 def init(
+    ctx,
+    output_dir: Path,
+    env_file,
+    overwrite,
+    **kwargs,
+):
+    asyncio.run(_init_async(ctx, output_dir, env_file, overwrite, **kwargs))
+
+
+async def _init_async(
     ctx,
     output_dir: Path,
     env_file,
@@ -60,7 +73,7 @@ def init(
 
     init_config = InitConfig(
         env=Environment(configs.get("env")),
-        aoc_dir=Path(f"{output_dir}/aoc"),
+        aoc_dir=Path(output_dir),
         protocol=Protocol(configs.get("protocol")),
         domain=configs.get("domain"),
         admin_email=configs.get("admin_email"),
@@ -69,4 +82,4 @@ def init(
     )
 
     handler = InitCommand(init_config)
-    handler.execute()
+    await handler.execute()
