@@ -1,13 +1,15 @@
 import json
 import logging
 
-from django.conf import settings
+from keycloak import (
+    KeycloakAdmin,
+    KeycloakOpenID,
+    KeycloakOpenIDConnection,
+    KeycloakPostError,
+)
 
 from bitswan_backend.core.utils import encryption
-from keycloak import KeycloakAdmin
-from keycloak import KeycloakOpenID
-from keycloak import KeycloakOpenIDConnection
-from keycloak import KeycloakPostError
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -88,6 +90,16 @@ class KeycloakService:
 
         return result
 
+    def get_keycloak_org_groups(self, keycloak_groups):
+        return [
+            group
+            for group in keycloak_groups
+            if (
+                "type" in group.get("attributes", {})
+                and "org" in group["attributes"]["type"]
+            )
+        ]
+
     def get_first_group_id_of_type_org(self, keycloak_groups):
         """
         Returns the first group's ID where the 'type' attribute contains 'org'.
@@ -123,6 +135,21 @@ class KeycloakService:
             return self.get_first_group_id_of_type_org(user_keycloak_groups)
         except Exception:
             logger.exception("Failed to get active user org:")
+            raise
+
+    def get_active_user_orgs(self, request):
+        try:
+            user_info = self.get_claims(request)
+            user_id = user_info["sub"]
+            user_keycloak_groups = self.get_user_groups(user_id)
+
+            if not user_keycloak_groups:
+                logger.warning("No groups found for user: %s", user_id)
+                return []
+
+            return self.get_keycloak_org_groups(user_keycloak_groups)
+        except Exception:
+            logger.exception("Failed to get active user orgs:")
             raise
 
     def get_user_org_id(self, token):
@@ -189,6 +216,16 @@ class KeycloakService:
             skip_exists=True,
         )
         logger.info("Created group: %s", res)
+
+        return res
+
+    def create_org(self, name, attributes):
+        res = self.keycloak_admin.create_group(
+            payload={
+                "name": name,
+                "attributes": attributes,
+            },
+        )
 
         return res
 
