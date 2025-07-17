@@ -3,6 +3,7 @@
 import { type Session } from "next-auth";
 
 export function isUserAdmin(session: Session | null) {
+  console.log("session", session);
   return session?.user.group_membership?.some((membership) =>
     membership.toLowerCase().endsWith("/admin"),
   );
