@@ -24,6 +24,13 @@ class KeycloakMixin:
 
         return org_id
 
+    def get_active_user(self):
+        """
+        Helper method to get the Keycloak user
+        """
+
+        return self.keycloak.get_active_user(self.request)
+
     def get_active_user_org_name_slug(self):
         """
         Helper method to get the Keycloak group name slug
@@ -50,12 +57,13 @@ class KeycloakMixin:
 
         return org_groups
 
-    def create_org_group(self, name, attributes):
+    def create_org_group(self, name, attributes, org_id=None):
         """
         Helper method to create a new Keycloak group
         """
 
-        org_id = self.keycloak.get_active_user_org(self.request).get("id")
+        if org_id is None:
+            org_id = self.keycloak.get_active_user_org(self.request).get("id")
 
         org_group = self.keycloak.create_group(
             org_id=org_id,
@@ -151,7 +159,7 @@ class KeycloakMixin:
         """
 
         return self.keycloak.start_device_registration()
-    
+
     def get_user_org_id(self, token):
         """
         Helper method to get the user org ID
@@ -172,7 +180,7 @@ class KeycloakMixin:
         """
 
         return self.keycloak.confirm_device_registration(device_code)
-    
+
     def get_token_from_token(self, request):
         """
         Helper method to get a token from a token
@@ -185,3 +193,17 @@ class KeycloakMixin:
         Helper method to check if the user is an admin
         """
         return self.keycloak.is_admin(request)
+
+    def get_active_user_orgs(self):
+        """
+        Helper method to get the active user orgs
+        """
+
+        return self.keycloak.get_active_user_orgs(self.request)
+
+    def create_org(self, name, attributes):
+        """
+        Helper method to create an org
+        """
+
+        return self.keycloak.create_org(name, attributes)

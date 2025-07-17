@@ -1,6 +1,6 @@
 "use client";
 
-import { Workflow } from "lucide-react";
+import { Users } from "lucide-react";
 import {
   type MQTTProfile,
   type MQTTProfileListResponse,
@@ -49,9 +49,9 @@ export default function MQTTProfileSelector(props: MQTTProfileSelectorProps) {
       value={activeMQTTProfile?.id}
       onValueChange={handleActiveMQTTUserChange}
     >
-      <SelectTrigger className="w-[280px] bg-neutral-100">
+      <SelectTrigger className="w-[180px] bg-neutral-100">
         <div className="flex items-center gap-2">
-          <Workflow
+          <Users
             size={20}
             strokeWidth={2.0}
             className="mr-2 text-neutral-600"

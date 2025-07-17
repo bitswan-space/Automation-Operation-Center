@@ -1,7 +1,7 @@
 import { TitleBarContent } from "./TitlebarContent";
 import React, { type ReactNode } from "react";
 
-import { fetchMQTTProfiles } from "@/server/actions/mqtt-profiles";
+import { fetchMQTTProfiles, fetchOrgs } from "@/server/actions/mqtt-profiles";
 import { auth } from "@/server/auth";
 
 interface TitleBarProps {
@@ -14,12 +14,16 @@ export async function TitleBar(props: Readonly<TitleBarProps>) {
 
   const session = await auth();
   const mqttProfiles = await fetchMQTTProfiles(session);
+  const orgs = await fetchOrgs(session);
+
+  console.log("orgs: ", orgs);
 
   return (
     <TitleBarContent
       className={className}
       title={title}
       mqttProfiles={mqttProfiles}
+      orgs={orgs}
     />
   );
 }
