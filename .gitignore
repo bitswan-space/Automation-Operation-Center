@@ -2,3 +2,5 @@
 /sandbox
 /.vscode
 deployment/
+venv/
+.venv/
