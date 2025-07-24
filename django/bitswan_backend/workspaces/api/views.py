@@ -161,7 +161,7 @@ class GetProfileEmqxJWTAPIView(KeycloakMixin, views.APIView):
     permission_classes = [CanReadProfileEMQXJWT]
 
     def get(self, request, profile_id):
-        org_id = self.get_active_user_org_id()
+        org_id = self.get_org_id()
         is_admin = self.is_admin(request)
 
         profile_id = f"{org_id}_group_{profile_id}{'_admin' if is_admin else ''}"
