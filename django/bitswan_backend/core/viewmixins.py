@@ -230,8 +230,8 @@ class KeycloakMixin:
 
         for group in user_org_memberships:
             if group == f"/{org_name}":
-                # ! Not the most secure, can get spoofed by the user
-                # Still thinking of a better way to do this
-                return org_id
+                org = self.keycloak.get_org_by_id(org_id)
+                if org.get("name") == org_name:
+                    return org.get("id")
 
         raise PermissionDenied("User is not a member of the org")
